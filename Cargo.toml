@@ -8,3 +8,8 @@ edition = "2018"
 
 [dependencies]
 termion="*"
+
+[profile.release]
+opt-level = 'z'  # Optimize for size.
+lto = true
+panic = 'abort'
