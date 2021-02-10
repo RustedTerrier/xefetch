@@ -2,9 +2,11 @@ extern crate termion;
 
 use std::env;
 use std::fs;
+use std::process::Command;
 use termion::color;
 
 fn main() {
+    //colors
     let black = color::Fg(color::Black);
     let lblack = color::Fg(color::LightBlack);
     let red = color::Fg(color::Red);
@@ -21,14 +23,29 @@ fn main() {
     let lcyan = color::Fg(color::LightCyan);
     let white = color::Fg(color::White);
     let lwhite = color::Fg(color::LightWhite);
+
+    //OS
     let file = fs::read_to_string("/etc/os-release").expect("Your OS isn't supported yet.");
     let mut v: Vec<&str> = file.split('"').collect();
     let distro = v[1].to_ascii_uppercase();
+
     let shl = env::var("SHELL").unwrap();
     v = shl.split('/').collect();
-    let shell = v[v.len() - 1];
+    let shell = v[v.len() - 1].to_ascii_uppercase();
+
+    //Get username
+    let hme = env::var("HOME").unwrap();
+    v = hme.split('/').collect();
+    let user = v[v.len() - 1];
+    //Get Host name
+    let hst = Command::new("hostname")
+        .output()
+        .expect("Could not find hostname.");
+    let host = String::from_utf8(hst.stdout).unwrap().replace("\n", "");
     println!(
-        "OS:    {}\n\rShell: {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██\n{}██{}██{}██{}██{}██{}██{}██{}██{reset}",
+        "{}@{}\n\rOS:    {}\n\rSHELL: {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██\n{}██{}██{}██{}██{}██{}██{}██{}██{reset}",
+        user,
+        host,
         distro,
         shell,
         black,
