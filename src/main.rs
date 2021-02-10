@@ -42,11 +42,18 @@ fn main() {
         .output()
         .expect("Could not find hostname.");
     let host = String::from_utf8(hst.stdout).unwrap().replace("\n", "");
+
+    //Model
+    let mdl = fs::read_to_string("/sys/devices/virtual/dmi/id/product_name")
+        .expect("Error: file /sys/devices/virtual/dmi/id/product_name not found.");
+    v = mdl.split('\n').collect();
+    let model = v[0].to_string();
     println!(
-        "{}@{}\n\rOS:    {}\n\rSHELL: {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██\n{}██{}██{}██{}██{}██{}██{}██{}██{reset}",
+        "{}@{}\n\rOS:    {}\n\rHOST:  {}\n\rSHELL: {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██\n{}██{}██{}██{}██{}██{}██{}██{}██{reset}",
         user,
         host,
         distro,
+        model,
         shell,
         black,
         red,
