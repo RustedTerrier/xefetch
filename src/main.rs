@@ -30,6 +30,10 @@ fn main() {
     let distro = v[1].to_ascii_uppercase();
     //Get DE
     let de = env::var("XDG_CURRENT_DESKTOP").unwrap();
+    match de {
+            Ok(d) => de = d,
+            Err(_) => (),
+        }
 
     //Shell
     let shl = env::var("SHELL").unwrap();
