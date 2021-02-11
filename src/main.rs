@@ -6,36 +6,31 @@ use std::process::Command;
 use termion::color;
 
 fn main() {
-    //colors
-    let black = color::Fg(color::Black);
-    let lblack = color::Fg(color::LightBlack);
-    let red = color::Fg(color::Red);
-    let lred = color::Fg(color::LightRed);
-    let green = color::Fg(color::Green);
-    let lgreen = color::Fg(color::LightGreen);
-    let yellow = color::Fg(color::Yellow);
-    let lyellow = color::Fg(color::LightYellow);
-    let blue = color::Fg(color::Blue);
-    let lblue = color::Fg(color::LightBlue);
-    let magenta = color::Fg(color::Magenta);
-    let lmagenta = color::Fg(color::LightMagenta);
-    let cyan = color::Fg(color::Cyan);
-    let lcyan = color::Fg(color::LightCyan);
-    let white = color::Fg(color::White);
-    let lwhite = color::Fg(color::LightWhite);
-
     //OS
     let file = fs::read_to_string("/etc/os-release").expect("Your OS isn't supported yet.");
     let mut v: Vec<&str> = file.split('"').collect();
     let distro = v[1].to_ascii_uppercase();
+
     //Get DE
-    let de = env::var("XDG_CURRENT_DESKTOP").unwrap();
+    let mut de: String;
+    let decheck: bool = env::var("XDG_CURRENT_DESKTOP").is_err();
+    if decheck {
+        de = "N/A".to_string();
+    } else {
+        de = env::var("XDG_CURRENT_DESKTOP").unwrap().to_string();
+    }
 
     //Shell
-    let shl = env::var("SHELL").unwrap();
-    v = shl.split('/').collect();
-    let shell = v[v.len() - 1].to_ascii_uppercase();
-
+    let mut shl: String;
+    let mut shell: String;
+    let shcheck: bool = env::var("SHELL").is_err();
+    if shcheck {
+        shell = "N/A".to_string();
+    } else {
+        shl = env::var("SHELL").unwrap().to_string();
+        v = shl.split('/').collect();
+        shell = v[v.len() - 1].to_ascii_uppercase();
+    }
     //Get username
     let hme = env::var("HOME").unwrap();
     v = hme.split('/').collect();
@@ -107,36 +102,18 @@ fn main() {
 
     //Get packages
     let pkgs = get_pkgs();
-    println!(
-        "{}@{}\n\rOS:     {} {}\n\rHOST:   {}\n\rKERNEL: {}\n\rUPTIME: {}\n\rSHELL:  {}\n\rDE:     {}\n\rCPU:    {}\n\rPKGS:   {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██\n{}██{}██{}██{}██{}██{}██{}██{}██{reset}",
-        user,
+    output(
+        user.to_string(),
         host,
+        model,
         distro,
         rch,
-        model,
         kernel,
         uptime,
         shell,
         de,
         cpu,
         pkgs,
-        black,
-        red,
-        green,
-        yellow,
-        blue,
-        magenta,
-        cyan,
-        white,
-        lblack,
-        lred,
-        lgreen,
-        lyellow,
-        lblue,
-        lmagenta,
-        lcyan,
-        lwhite,
-        reset = color::Fg(color::Reset),
     );
 }
 
@@ -162,12 +139,12 @@ fn format_uptime() -> String {
     let minutes = (secs / 60) % 60;
     let mut uptime = "".to_string();
     if days != 0 {
-        uptime = format!("{} days, {} hours, {} mins", days, hours, minutes);
+        uptime = format!("{} DAYS, {} HOURS, {} MINS", days, hours, minutes);
     } else {
         if hours != 0 {
-            uptime = format!("{} hours, {} mins", hours, minutes);
+            uptime = format!("{} HOURS, {} MINS", hours, minutes);
         } else {
-            uptime = format!("{} mins", minutes);
+            uptime = format!("{} MINS", minutes);
         }
     }
     uptime.to_string()
@@ -317,4 +294,38 @@ fn get_pkgs() -> String {
     v.remove(v.len() - 2);
     pkgs = v.into_iter().collect();
     pkgs
+}
+
+fn output(
+    user: String,
+    host: String,
+    model: String,
+    distro: String,
+    arch: String,
+    kernel: String,
+    uptime: String,
+    shell: String,
+    de: String,
+    cpu: String,
+    pkgs: String,
+) {
+    //colors
+    let black = color::Fg(color::Black);
+    let lblack = color::Fg(color::LightBlack);
+    let red = color::Fg(color::Red);
+    let lred = color::Fg(color::LightRed);
+    let green = color::Fg(color::Green);
+    let lgreen = color::Fg(color::LightGreen);
+    let yellow = color::Fg(color::Yellow);
+    let lyellow = color::Fg(color::LightYellow);
+    let blue = color::Fg(color::Blue);
+    let lblue = color::Fg(color::LightBlue);
+    let magenta = color::Fg(color::Magenta);
+    let lmagenta = color::Fg(color::LightMagenta);
+    let cyan = color::Fg(color::Cyan);
+    let lcyan = color::Fg(color::LightCyan);
+    let white = color::Fg(color::White);
+    let lwhite = color::Fg(color::LightWhite);
+
+    println!("{}@{}\n\rOS:     {} {}\n\rHOST:   {}\n\rKERNEL: {}\n\rUPTIME: {}\n\rSHELL:  {}\n\rDE:     {}\n\rCPU:    {}\n\rPKGS:   {}\n\rXEFETCH 1.0\n\r{}██{}██{}██{}██{}██{}██{}██{}██\n{}██{}██{}██{}██{}██{}██{}██{}██{reset}",user,host,distro,arch,model,kernel,uptime,shell,de,cpu,pkgs,black,red,green,yellow,blue,magenta,cyan,white,lblack,lred,lgreen,lyellow,lblue,lmagenta,lcyan,lwhite,reset = color::Fg(color::Reset),);
 }
