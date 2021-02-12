@@ -417,20 +417,20 @@ fn output(
 
         _ => {
             print!(
-                "{}{}    ___          {}{}{}@{}{}{}\n\r   (.. \\         OS:{}{}     {} {}",
-                bold, white, user, nbold, reset, bold, white, host, reset, nbold, distro, arch
+                "{}{}       ___       {}{}{}@{}{}{}\n\r      (.. \\      OS:{}{}     {} {}",
+                bold, lwhite, user, nbold, reset, bold, lwhite, host, reset, nbold, distro, arch
             );
             print!(
-                "\n\r{}{}   (<> |         HOST:{}{}   {}\n\r{}{}  //  \\ \\        KERNEL:{}{} {}",
-                bold, white, nbold, reset, model, bold, white, nbold, reset, kernel
+                "\n\r{}{}      ({}<>{} |      HOST:{}{}   {}\n\r{}{}     //  \\ \\     KERNEL:{}{} {}",
+                bold, lwhite, yellow, lwhite, nbold, reset, model, bold, lwhite, nbold, reset, kernel
             );
             print!(
-                "\n\r{}{} ( |  | /|       UPTIME:{}{} {}\n\r{}{}_/\\ __)/_)       SHELL:{}{}  {}",
-                bold, white, nbold, reset, uptime, bold, white, nbold, reset, shell
+                "\n\r{}{}    ( |  | /|    UPTIME:{}{} {}\n\r{}{}   _{}/\\ __)/{}_{})    SHELL:{}{}  {}",
+                bold, lwhite, nbold, reset, uptime, bold, yellow, lwhite, yellow, lwhite, nbold, reset, shell
             );
             print!(
-                "\n\r{}{}\\/-____\\/        DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}CPU:{}{}    {}",
-                bold, white, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, white, bold, nbold, reset, cpu,
+                "\n\r{}{}   \\/{}-____{}\\/{}     DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}CPU:{}{}    {}",
+                bold, yellow, lwhite, yellow, lwhite, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, lwhite, bold, nbold, reset, cpu,
             );
             print!(
                 "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r",
@@ -442,7 +442,7 @@ fn output(
                 lmagenta,
                 lcyan,
                 lwhite,
-                white,
+                lwhite,
                 bold,
                 nbold,
                 reset,
