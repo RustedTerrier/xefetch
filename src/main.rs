@@ -4,28 +4,36 @@ use std::env;
 use std::fs;
 use std::process::Command;
 use termion::color;
+use termion::style;
 
 fn main() {
     //OS
     let file = fs::read_to_string("/etc/os-release").expect("Your OS isn't supported yet.");
-    let mut v: Vec<&str> = file.split('"').collect();
-    let distro = v[1].to_ascii_uppercase();
+    let mut v: Vec<&str> = file.split('\n').collect();
+    let distro2 = v[1].to_string();
+    v = distro2.split("=").collect();
+    let mut distro = v[1].to_ascii_uppercase();
+    let vc: Vec<char> = distro.chars().collect();
+    if vc[0] == '"' {
+        distro = distro[1..(distro.chars().count() - 1)].to_string();
+    }
+    distro = format!("{} LINUX", distro);
 
     //Get DE
     let mut de: String;
     let decheck: bool = env::var("XDG_CURRENT_DESKTOP").is_err();
     if decheck {
-        de = "N/A".to_string();
+        de = "NOT FOUND".to_string();
     } else {
         de = env::var("XDG_CURRENT_DESKTOP").unwrap().to_string();
     }
 
     //Shell
-    let mut shl: String;
+    let shl: String;
     let mut shell: String;
     let shcheck: bool = env::var("SHELL").is_err();
     if shcheck {
-        shell = "N/A".to_string();
+        shell = "NOT FOUND".to_string();
     } else {
         shl = env::var("SHELL").unwrap().to_string();
         v = shl.split('/').collect();
@@ -326,6 +334,122 @@ fn output(
     let lcyan = color::Fg(color::LightCyan);
     let white = color::Fg(color::White);
     let lwhite = color::Fg(color::LightWhite);
+    let reset = color::Fg(color::Reset);
+    let bold = style::Bold;
+    let nbold = style::Reset;
+    let distro_s: &str = &distro[..];
 
-    println!("{}@{}\n\rOS:     {} {}\n\rHOST:   {}\n\rKERNEL: {}\n\rUPTIME: {}\n\rSHELL:  {}\n\rDE:     {}\n\rCPU:    {}\n\rPKGS:   {}\n\rXEFETCH 1.0\n\r{}██{}██{}██{}██{}██{}██{}██{}██\n{}██{}██{}██{}██{}██{}██{}██{}██{reset}",user,host,distro,arch,model,kernel,uptime,shell,de,cpu,pkgs,black,red,green,yellow,blue,magenta,cyan,white,lblack,lred,lgreen,lyellow,lblue,lmagenta,lcyan,lwhite,reset = color::Fg(color::Reset),);
+    //println!("{}@{}\n\rOS:     {} {}\n\rHOST:   {}\n\rKERNEL: {}\n\rUPTIME: {}\n\rSHELL:  {}\n\rDE:     {}\n\rCPU:    {}\n\rPKGS:   {}\n\rXEFETCH 1.0\n\r{}██{}██{}██{}██{}██{}██{}██{}██\n{}██{}██{}██{}██{}██{}██{}██{}██{reset}",user,host,distro,arch,model,kernel,uptime,shell,de,cpu,pkgs,black,red,green,yellow,blue,magenta,cyan,white,lblack,lred,lgreen,lyellow,lblue,lmagenta,lcyan,lwhite,reset = color::Fg(color::Reset),);
+    match distro_s {
+        "VOID LINUX" => {
+            print!(
+                "{}{}    _______           {}{}{}@{}{}{}\n\r    \\_____ `-         OS:{}{}     {} {}",
+                bold, lgreen, user, nbold, reset, bold, lgreen, host, reset, nbold, distro, arch
+            );
+            print!(
+                "\n\r{}{} /\\   ___ `- \\        HOST:{}{}   {}\n\r{}{}| |  /   \\  | |       KERNEL:{}{} {}",
+                bold, lgreen, nbold, reset, model, bold, lgreen, nbold, reset, kernel
+            );
+            print!(
+                "\n\r{}{}| |  \\___/  | |       UPTIME:{}{} {}\n\r{}{} \\ `-_____  \\/        SHELL:{}{}  {}",
+                bold, lgreen, nbold, reset, uptime, bold, lgreen, nbold, reset, shell
+            );
+            print!(
+                "\n\r{}{}  `-______\\           DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}     CPU:{}{}    {}",
+                bold, lgreen, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, lgreen, bold, nbold, reset, cpu,
+            );
+            print!(
+                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}     PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r",
+                lblack,
+                lred,
+                lgreen,
+                lyellow,
+                lblue,
+                lmagenta,
+                lcyan,
+                lwhite,
+                lgreen,
+                bold,
+                nbold,
+                reset,
+                pkgs,
+                bold,
+                green,
+            );
+        }
+
+        "ALPINE LINUX" => {
+            print!(
+                "{}{}    _______            {}{}{}@{}{}{}\n\r    \\_____ `-         OS:{}{}     {} {}",
+                bold, lgreen, user, nbold, reset, bold, lgreen, host, reset, nbold, distro, arch
+            );
+            print!(
+                "\n\r{}{} /\\   ___ `- \\        HOST:{}{}   {}\n\r{}{}| |  /   \\  | |       KERNEL:{}{} {}",
+                bold, lgreen, nbold, reset, model, bold, lgreen, nbold, reset, kernel
+            );
+            print!(
+                "\n\r{}{}| |  \\___/  | |       UPTIME:{}{} {}\n\r{}{} \\ `-_____  \\/        SHELL:{}{}  {}",
+                bold, lgreen, nbold, reset, uptime, bold, lgreen, nbold, reset, shell
+            );
+            print!(
+                "\n\r{}{}  `-______\\           DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}     CPU:{}{}    {}",
+                bold, lgreen, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, lgreen, bold, nbold, reset, cpu,
+            );
+            print!(
+                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}     PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r",
+                lblack,
+                lred,
+                lgreen,
+                lyellow,
+                lblue,
+                lmagenta,
+                lcyan,
+                lwhite,
+                lgreen,
+                bold,
+                nbold,
+                reset,
+                pkgs,
+                bold,
+                green,
+            );
+        }
+
+        _ => {
+            print!(
+                "{}{}    ___          {}{}{}@{}{}{}\n\r   (.. \\         OS:{}{}     {} {}",
+                bold, white, user, nbold, reset, bold, white, host, reset, nbold, distro, arch
+            );
+            print!(
+                "\n\r{}{}   (<> |         HOST:{}{}   {}\n\r{}{}  //  \\ \\        KERNEL:{}{} {}",
+                bold, white, nbold, reset, model, bold, white, nbold, reset, kernel
+            );
+            print!(
+                "\n\r{}{} ( |  | /|       UPTIME:{}{} {}\n\r{}{}_/\\ __)/_)       SHELL:{}{}  {}",
+                bold, white, nbold, reset, uptime, bold, white, nbold, reset, shell
+            );
+            print!(
+                "\n\r{}{}\\/-____\\/        DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}CPU:{}{}    {}",
+                bold, white, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, white, bold, nbold, reset, cpu,
+            );
+            print!(
+                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r",
+                lblack,
+                lred,
+                lgreen,
+                lyellow,
+                lblue,
+                lmagenta,
+                lcyan,
+                lwhite,
+                white,
+                bold,
+                nbold,
+                reset,
+                pkgs,
+                bold,
+                green,
+            );
+        }
+    }
 }
