@@ -339,6 +339,12 @@ fn output(
     let nbold = style::Reset;
     let distro_s: &str = &distro[..];
 
+    //Copyright (c) 2018, 2019, 2020 Joe Schillinger <me@schil.li>
+    //
+    //Permission to use, copy, modify, and distribute this software for any
+    //purpose with or without fee is hereby granted, provided that the above
+    //copyright notice and this permission notice appear in all copies.
+
     //println!("{}@{}\n\rOS:     {} {}\n\rHOST:   {}\n\rKERNEL: {}\n\rUPTIME: {}\n\rSHELL:  {}\n\rDE:     {}\n\rCPU:    {}\n\rPKGS:   {}\n\rXEFETCH 1.0\n\r{}██{}██{}██{}██{}██{}██{}██{}██\n{}██{}██{}██{}██{}██{}██{}██{}██{reset}",user,host,distro,arch,model,kernel,uptime,shell,de,cpu,pkgs,black,red,green,yellow,blue,magenta,cyan,white,lblack,lred,lgreen,lyellow,lblue,lmagenta,lcyan,lwhite,reset = color::Fg(color::Reset),);
     match distro_s {
         "VOID LINUX" => {
