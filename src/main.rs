@@ -432,6 +432,43 @@ fn output(
                 bold, blue, nbold, reset, uptime, bold, blue, nbold, reset, shell
             );
             print!(
+                "\n\r{}{}/_/ /_|    \\_\\ \\_\\ DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}  CPU:{}{}    {}",
+                bold, blue, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, blue, bold, nbold, reset, cpu,
+            );
+            print!(
+                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}  PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r",
+                lblack,
+                lred,
+                lgreen,
+                lyellow,
+                lblue,
+                lmagenta,
+                lcyan,
+                lwhite,
+                blue,
+                bold,
+                nbold,
+                reset,
+                pkgs,
+                bold,
+                green,
+            );
+        }
+
+        "MX LINUX" => {
+            print!(
+                "{}{}    \\  /     {}{}{}@{}{}{}\n\r     /  \\          OS:{}{}     {} {}",
+                bold, blue, user, nbold, reset, bold, blue, host, reset, nbold, distro, arch
+            );
+            print!(
+                "\n\r{}{}    / /\\ \\  /\\     HOST:{}{}   {}\n\r{}{}   / /  \\ \\/  \\    KERNEL:{}{} {}",
+                bold, blue, nbold, reset, model, bold, blue, nbold, reset, kernel
+            );
+            print!(
+                "\n\r{}{}  / /    \\ \\/\\ \\   UPTIME:{}{} {}\n\r{}{} / / /|   \\ \\ \\ \\  SHELL:{}{}  {}",
+                bold, blue, nbold, reset, uptime, bold, blue, nbold, reset, shell
+            );
+            print!(
                 "\n\r{}{}/_/ /_|    \\_\\ \\_\\ DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}     CPU:{}{}    {}",
                 bold, blue, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, blue, bold, nbold, reset, cpu,
             );
