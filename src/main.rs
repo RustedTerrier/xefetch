@@ -134,15 +134,16 @@ fn main() {
 
 fn get_distro() -> String {
     //OS
-    let file = fs::read_to_string("/etc/os-release").expect("Your OS isn't supported yet.");
+    let file = fs::read_to_string("/etc/os-release")
+        .expect("Your OS isn't supported yet. Please add a /etc/os-release to use XEFETCH.");
     let mut v: Vec<&str> = file.split('\n').collect();
     let mut distro: String;
-    let mut distro2: String = v[1].to_string();
+    let mut distro2: String = v[0].to_string();
     let mut i = 0;
     while i < (v.len() - 1) {
         let os = v[i].to_string();
-        let mut os2: String = os[0..3].to_string();
-        if os2 == "ID=".to_string() {
+        let mut os2: String = os[0..5].to_string();
+        if os2 == "NAME=".to_string() {
             distro2 = v[i].to_string()
         }
         i += 1;
@@ -433,7 +434,7 @@ fn output(
                 nbold,
             );
         }
-        "LINUXMINT" => {
+        "LINUX MINT" => {
             print!(
                 "{}{} _____________   {}{}{}@{}{}{}\n\r|_            \\  OS:{}{}     {} {}",
                 bold, lgreen, user, nbold, reset, bold, lgreen, host, reset, nbold, distro, arch
@@ -472,9 +473,9 @@ fn output(
             );
         }
 
-        "ALPINE" => {
+        "ALPINE LINUX" => {
             print!(
-                "{}{}      /\\           {}{}{}@{}{}{}\n\r     /  \\          OS:{}{}     {} LINUX {}",
+                "{}{}      /\\           {}{}{}@{}{}{}\n\r     /  \\          OS:{}{}     {}{}",
                 bold, blue, user, nbold, reset, bold, blue, host, reset, nbold, distro, arch
             );
             print!(
@@ -511,9 +512,9 @@ fn output(
             );
         }
 
-        "MX" => {
+        "MX LINUX" => {
             print!(
-                "{}{}    \\\\  /       {}{}{}@{}{}{}\n\r     \\\\/        OS:{}{}     {} LINUX {}",
+                "{}{}    \\\\  /       {}{}{}@{}{}{}\n\r     \\\\/        OS:{}{}     {}{}",
                 bold, blue, user, nbold, reset, bold, blue, host, reset, nbold, distro, arch
             );
             print!(
