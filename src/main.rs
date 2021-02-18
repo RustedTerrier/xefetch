@@ -7,18 +7,8 @@ use termion::color;
 use termion::style;
 
 fn main() {
-    //OS
-    let file = fs::read_to_string("/etc/os-release").expect("Your OS isn't supported yet.");
-    let mut v: Vec<&str> = file.split('\n').collect();
-    let distro2 = v[1].to_string();
-    v = distro2.split("=").collect();
-    let mut distro = v[1].to_ascii_uppercase();
-    let vc: Vec<char> = distro.chars().collect();
-    if vc[0] == '"' {
-        distro = distro[1..(distro.chars().count() - 1)].to_string();
-    }
-    distro = format!("{} LINUX", distro);
-
+    let mut v: Vec<&str> = Vec::new();
+    let distro = get_distro();
     //Get DE
     let mut de: String;
     let decheck: bool = env::var("XDG_CURRENT_DESKTOP").is_err();
@@ -140,6 +130,30 @@ fn main() {
         cpu,
         pkgs,
     );
+}
+
+fn get_distro() -> String {
+    //OS
+    let file = fs::read_to_string("/etc/os-release").expect("Your OS isn't supported yet.");
+    let mut v: Vec<&str> = file.split('\n').collect();
+    let mut distro: String;
+    let mut distro2: String = v[1].to_string();
+    let mut i = 0;
+    while i < (v.len() - 1) {
+        let os = v[i].to_string();
+        let mut os2: String = os[0..3].to_string();
+        if os2 == "ID=".to_string() {
+            distro2 = v[i].to_string()
+        }
+        i += 1;
+    }
+    v = distro2.split("=").collect();
+    distro = v[1].to_ascii_uppercase();
+    let vc: Vec<char> = distro.chars().collect();
+    if vc[0] == '"' {
+        distro = distro[1..(distro.chars().count() - 1)].to_string();
+    }
+    distro
 }
 
 fn format_uptime() -> String {
@@ -381,9 +395,9 @@ fn output(
 
     //println!("{}@{}\n\rOS:     {} {}\n\rHOST:   {}\n\rKERNEL: {}\n\rUPTIME: {}\n\rSHELL:  {}\n\rDE:     {}\n\rCPU:    {}\n\rPKGS:   {}\n\rXEFETCH 1.0\n\r{}██{}██{}██{}██{}██{}██{}██{}██\n{}██{}██{}██{}██{}██{}██{}██{}██{reset}",user,host,distro,arch,model,kernel,uptime,shell,de,cpu,pkgs,black,red,green,yellow,blue,magenta,cyan,white,lblack,lred,lgreen,lyellow,lblue,lmagenta,lcyan,lwhite,reset = color::Fg(color::Reset),);
     match distro_s {
-        "VOID LINUX" => {
+        "VOID" => {
             print!(
-                "{}{}    _______      {}{}{}@{}{}{}\n\r    \\_____ `-    OS:{}{}     {} {}",
+                "{}{}    _______      {}{}{}@{}{}{}\n\r    \\_____ `-    OS:{}{}     {} LINUX {}",
                 bold, lgreen, user, nbold, reset, bold, lgreen, host, reset, nbold, distro, arch
             );
             print!(
@@ -399,7 +413,7 @@ fn output(
                 bold, lgreen, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, lgreen, bold, nbold, reset, cpu,
             );
             print!(
-                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r",
+                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r{}{}",
                 lblack,
                 lred,
                 lgreen,
@@ -415,12 +429,52 @@ fn output(
                 pkgs,
                 bold,
                 green,
+                reset,
+                nbold,
+            );
+        }
+        "LINUXMINT" => {
+            print!(
+                "{}{} _____________   {}{}{}@{}{}{}\n\r|_            \\  OS:{}{}     {} {}",
+                bold, lgreen, user, nbold, reset, bold, lgreen, host, reset, nbold, distro, arch
+            );
+            print!(
+                "\n\r{}{}  |  | _____  |  HOST:{}{}   {}\n\r{}{}  |  | | | |  |  KERNEL:{}{} {}",
+                bold, lgreen, nbold, reset, model, bold, lgreen, nbold, reset, kernel
+            );
+            print!(
+                "\n\r{}{}  |  | | | |  |  UPTIME:{}{} {}\n\r{}{}  |  \\_____/  |  SHELL:{}{}  {}",
+                bold, lgreen, nbold, reset, uptime, bold, lgreen, nbold, reset, shell
+            );
+            print!(
+                "\n\r{}{}  \\___________/  DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}CPU:{}{}    {}",
+                bold, lgreen, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, lgreen, bold, nbold, reset, cpu,
+            );
+            print!(
+                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r{}{}",
+                lblack,
+                lred,
+                lgreen,
+                lyellow,
+                lblue,
+                lmagenta,
+                lcyan,
+                lwhite,
+                lgreen,
+                bold,
+                nbold,
+                reset,
+                pkgs,
+                bold,
+                green,
+                reset,
+                nbold,
             );
         }
 
-        "ALPINE LINUX" => {
+        "ALPINE" => {
             print!(
-                "{}{}      /\\           {}{}{}@{}{}{}\n\r     /  \\          OS:{}{}     {} {}",
+                "{}{}      /\\           {}{}{}@{}{}{}\n\r     /  \\          OS:{}{}     {} LINUX {}",
                 bold, blue, user, nbold, reset, bold, blue, host, reset, nbold, distro, arch
             );
             print!(
@@ -436,7 +490,7 @@ fn output(
                 bold, blue, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, blue, bold, nbold, reset, cpu,
             );
             print!(
-                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}  PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r",
+                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}  PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r{}{}",
                 lblack,
                 lred,
                 lgreen,
@@ -452,28 +506,30 @@ fn output(
                 pkgs,
                 bold,
                 green,
+                reset,
+                nbold,
             );
         }
 
-        "MX LINUX" => {
+        "MX" => {
             print!(
-                "{}{}    \\  /     {}{}{}@{}{}{}\n\r     /  \\          OS:{}{}     {} {}",
+                "{}{}    \\\\  /       {}{}{}@{}{}{}\n\r     \\\\/        OS:{}{}     {} LINUX {}",
                 bold, blue, user, nbold, reset, bold, blue, host, reset, nbold, distro, arch
             );
             print!(
-                "\n\r{}{}    / /\\ \\  /\\     HOST:{}{}   {}\n\r{}{}   / /  \\ \\/  \\    KERNEL:{}{} {}",
+                "\n\r{}{}      \\\\        HOST:{}{}   {}\n\r{}{}   /\\/ \\\\       KERNEL:{}{} {}",
                 bold, blue, nbold, reset, model, bold, blue, nbold, reset, kernel
             );
             print!(
-                "\n\r{}{}  / /    \\ \\/\\ \\   UPTIME:{}{} {}\n\r{}{} / / /|   \\ \\ \\ \\  SHELL:{}{}  {}",
+                "\n\r{}{}  /  \\  /\\      UPTIME:{}{} {}\n\r{}{} /    \\/  \\     SHELL:{}{}  {}",
                 bold, blue, nbold, reset, uptime, bold, blue, nbold, reset, shell
             );
             print!(
-                "\n\r{}{}/_/ /_|    \\_\\ \\_\\ DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}     CPU:{}{}    {}",
+                "\n\r{}{}/__________\\    DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{}{}CPU:{}{}    {}",
                 bold, blue, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, blue, bold, nbold, reset, cpu,
             );
             print!(
-                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}     PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r",
+                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{}{}PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r{}{}",
                 lblack,
                 lred,
                 lgreen,
@@ -489,6 +545,8 @@ fn output(
                 pkgs,
                 bold,
                 green,
+                reset,
+                nbold,
             );
         }
 
@@ -510,7 +568,7 @@ fn output(
                 bold, yellow, lwhite, yellow, lwhite, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, lwhite, bold, nbold, reset, cpu,
             );
             print!(
-                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r",
+                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r{}{}",
                 lblack,
                 lred,
                 lgreen,
@@ -526,6 +584,8 @@ fn output(
                 pkgs,
                 bold,
                 green,
+                reset,
+                nbold,
             );
         }
     }
