@@ -3,10 +3,13 @@ extern crate termion;
 use std::env;
 use std::fs;
 use std::process::Command;
+use std::sync::mpsc;
+use std::thread;
 use termion::color;
 use termion::style;
 
 fn main() {
+    let (tx, rx) = mpsc::channel();
     let mut v: Vec<&str> = Vec::new();
     let distro = get_distro();
     //Get DE
@@ -89,15 +92,16 @@ fn main() {
     //LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     //SOFTWARE.
-
-    let krnl = Command::new("uname")
-        .arg("-r")
-        .output()
-        .expect("Could not find kernel version.");
-    let kernl = String::from_utf8(krnl.stdout).unwrap().replace("\n", "");
-    let kernel = kernl.clone();
+    let handle = thread::spawn(move || {
+        let krnl = Command::new("uname")
+            .arg("-r")
+            .output()
+            .expect("Could not find kernel version.");
+        let kernl = String::from_utf8(krnl.stdout).unwrap().replace("\n", "");
+        let kernel = kernl.clone();
+        tx.send(kernel).unwrap();
+    });
     let uptime = format_uptime();
-
     //Get arch
     let arch = Command::new("uname")
         .arg("-m")
@@ -115,6 +119,7 @@ fn main() {
     //Get the model
     cpu = cpu[1..].to_string();
 
+    let kernel = rx.recv().unwrap();
     //Get packages
     let pkgs = get_pkgs();
     output(
@@ -123,7 +128,7 @@ fn main() {
         model,
         distro,
         rch,
-        kernel,
+        kernel.to_string(),
         uptime,
         shell,
         de,
@@ -414,7 +419,7 @@ fn output(
                 bold, lgreen, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, lgreen, bold, nbold, reset, cpu,
             );
             print!(
-                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r{}{}",
+                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}PKGS:{}{}   {}\n\r{}{}{}{}",
                 lblack,
                 lred,
                 lgreen,
@@ -452,7 +457,7 @@ fn output(
                 bold, lgreen, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, lgreen, bold, nbold, reset, cpu,
             );
             print!(
-                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r{}{}",
+                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}PKGS:{}{}   {}\n\r{}{}{}{}",
                 lblack,
                 lred,
                 lgreen,
@@ -491,7 +496,7 @@ fn output(
                 bold, blue, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, blue, bold, nbold, reset, cpu,
             );
             print!(
-                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}  PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r{}{}",
+                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}  PKGS:{}{}   {}\n\r{}{}{}{}",
                 lblack,
                 lred,
                 lgreen,
@@ -530,7 +535,7 @@ fn output(
                 bold, blue, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, blue, bold, nbold, reset, cpu,
             );
             print!(
-                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{}{}PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r{}{}",
+                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{}{}PKGS:{}{}   {}\n\r{}{}{}{}",
                 lblack,
                 lred,
                 lgreen,
@@ -569,7 +574,7 @@ fn output(
                 bold, yellow, lwhite, yellow, lwhite, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, lwhite, bold, nbold, reset, cpu,
             );
             print!(
-                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}PKGS:{}{}   {}\n\r{}{}XEFETCH 1.0\n\r{}{}",
+                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}PKGS:{}{}   {}\n\r{}{}{}{}",
                 lblack,
                 lred,
                 lgreen,
