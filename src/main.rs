@@ -8,18 +8,21 @@ fn main() {
     let mut v: Vec<&str> = Vec::new();
     let distro = get_distro();
     // Get DE
-    let mut de: String;
-    let decheck: bool = env::var("XDG_CURRENT_DESKTOP").is_err();
+    let de: String;
+    let decheck: bool = env::var("DESKTOP_SESSION").is_err();
     if decheck {
         de = "NOT FOUND".to_string();
     }
     else {
-        de = env::var("XDG_CURRENT_DESKTOP").unwrap().to_string();
+        de = env::var("DESKTOP_SESSION")
+            .unwrap()
+            .to_string()
+            .to_ascii_uppercase();
     }
 
     // Shell
     let shl: String;
-    let mut shell: String;
+    let shell: String;
     let shcheck: bool = env::var("SHELL").is_err();
     if shcheck {
         shell = "NOT FOUND".to_string();
@@ -150,7 +153,7 @@ fn get_distro() -> String {
     let mut i = 0;
     while i < (v.len() - 1) {
         let os = v[i].to_string();
-        let mut os2: String = os[0 .. 5].to_string();
+        let os2: String = os[0 .. 5].to_string();
         if os2 == "NAME=".to_string() {
             distro2 = v[i].to_string()
         }
@@ -194,7 +197,7 @@ fn format_uptime() -> String {
     let days = secs / 60 / 60 / 24;
     let hours = (secs / 60 / 60) % 24;
     let minutes = (secs / 60) % 60;
-    let mut uptime = "".to_string();
+    let uptime: String;
     if days != 0 {
         uptime = format!("{} DAYS, {} HOURS, {} MINS", days, hours, minutes);
     }
@@ -399,7 +402,7 @@ fn output(
     match distro_s {
         | "VOID" => {
             print!(
-                "{}{}   dMMMMMMb      {}{}{}@{}{}{}\n\r dMM/`  `*VMb    OS:{}{}     {} LINUX {}",
+                "{}{}   dMMMMMMb      {}{}{}@{}{}{}\n\r dMMV`  `*VMb    OS:{}{}     {} LINUX {}",
                 bold, lgreen, user, nbold, reset, bold, lgreen, host, reset, nbold, distro, arch
             );
             print!(
@@ -407,11 +410,11 @@ fn output(
                 bold, lgreen, nbold, reset, model, bold, lgreen, nbold, reset, kernel
             );
             print!(
-                "\n\r{}{}VMA  `**'  A,    UPTIME:{}{} {}\n\r{}{} PMAm-__-/MMP    SHELL:{}{}  {}",
+                "\n\r{}{}VMA  `**'  A,    UPTIME:{}{} {}\n\r{}{} PMAm-__-AMMP    SHELL:{}{}  {}",
                 bold, lgreen, nbold, reset, uptime, bold, lgreen, nbold, reset, shell
             );
             print!(
-                "\n\r{}{}   0MMMMMM0      DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}CPU:{}{}    {}",
+                "\n\r{}{}   PMMMMMMP      DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}CPU:{}{}    {}",
                 bold, lgreen, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, lgreen, bold, nbold, reset, cpu,
             );
             print!(
@@ -437,19 +440,19 @@ fn output(
         },
         | "LINUX MINT" => {
             print!(
-                "{}{} _____________   {}{}{}@{}{}{}\n\r|_            \\  OS:{}{}     {} {}",
+                "{}{}MMMMMMMMMMMMo    {}{}{}@{}{}{}\n\rM   _       `o   OS:{}{}     {} {}",
                 bold, lgreen, user, nbold, reset, bold, lgreen, host, reset, nbold, distro, arch
             );
             print!(
-                "\n\r{}{}  |  | _____  |  HOST:{}{}   {}\n\r{}{}  |  | | | |  |  KERNEL:{}{} {}",
+                "\n\r{}{}MMo M  m\"m\"m M   HOST:{}{}   {}\n\r{}{}  M M  M M M M   KERNEL:{}{} {}",
                 bold, lgreen, nbold, reset, model, bold, lgreen, nbold, reset, kernel
             );
             print!(
-                "\n\r{}{}  |  | | | |  |  UPTIME:{}{} {}\n\r{}{}  |  \\_____/  |  SHELL:{}{}  {}",
+                "\n\r{}{}  M M  \" \" # M   UPTIME:{}{} {}\n\r{}{}  o `\"\"\" **` M   SHELL:{}{}  {}",
                 bold, lgreen, nbold, reset, uptime, bold, lgreen, nbold, reset, shell
             );
             print!(
-                "\n\r{}{}  \\___________/  DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}CPU:{}{}    {}",
+                "\n\r{}{}   *MMMMMMMMMM   DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} {}CPU:{}{}    {}",
                 bold, lgreen, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, lgreen, bold, nbold, reset, cpu,
             );
             print!(
@@ -554,23 +557,23 @@ fn output(
 
         | "MX LINUX" => {
             print!(
-                "{}{}    \\\\  /       {}{}{}@{}{}{}\n\r     \\\\/        OS:{}{}     {} {}",
-                bold, blue, user, nbold, reset, bold, blue, host, reset, nbold, distro, arch
+                "{}{}       VA  A`    {}{}{}@{}{}{}\n\r        V,M`     OS:{}{}     {} {}",
+                bold, lwhite, user, nbold, reset, bold, lwhite, host, reset, nbold, distro, arch
             );
             print!(
-                "\n\r{}{}      \\\\        HOST:{}{}   {}\n\r{}{}   /\\/ \\\\       KERNEL:{}{} {}",
-                bold, blue, nbold, reset, model, bold, blue, nbold, reset, kernel
+                "\n\r{}{}      A.,MA      HOST:{}{}   {}\n\r{}{}     AMM* VA     KERNEL:{}{} {}",
+                bold, lwhite, nbold, reset, model, bold, lwhite, nbold, reset, kernel
             );
             print!(
-                "\n\r{}{}  /  \\  /\\      UPTIME:{}{} {}\n\r{}{} /    \\/  \\     SHELL:{}{}  {}",
-                bold, blue, nbold, reset, uptime, bold, blue, nbold, reset, shell
+                "\n\r{}{}    AMMMA  VA    UPTIME:{}{} {}\n\r{}{}   AMMMMMA.AMA   SHELL:{}{}  {}",
+                bold, lwhite, nbold, reset, uptime, bold, lwhite, nbold, reset, shell
             );
             print!(
-                "\n\r{}{}/__________\\    DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{}{}CPU:{}{}    {}",
-                bold, blue, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, blue, bold, nbold, reset, cpu,
+                "\n\r{}{}  AMMMMMMMMMMMA  DE:{}{}     {}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{}{} CPU:{}{}    {}",
+                bold, lwhite, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, lwhite, bold, nbold, reset, cpu,
             );
             print!(
-                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{}{}PKGS:{}{}   {}\n\r{}{}{}{}",
+                "\n\r{}██{}██{}██{}██{}██{}██{}██{}██{} PKGS:{}{}   {}\n\r{}{}{}{}",
                 lblack,
                 lred,
                 lgreen,
@@ -579,7 +582,6 @@ fn output(
                 lmagenta,
                 lcyan,
                 lwhite,
-                blue,
                 bold,
                 nbold,
                 reset,
