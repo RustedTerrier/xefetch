@@ -1,12 +1,16 @@
 extern crate termion;
 
-use std::{env, fs, process::Command, sync::mpsc, thread};
+use std::{env, fs, process::Command};
 
 use termion::{color, style};
 fn main() {
-    let (tx, rx) = mpsc::channel();
     let mut v: Vec<&str> = Vec::new();
     let distro = get_distro();
+    let result = parse_args(&distro);
+    let distro_art = match result {
+        | Ok(s) => s.to_ascii_uppercase().replace("_", " "),
+        | Err(()) => "".to_string()
+    };
     // Get DE
     let de: String;
     let decheck: bool = env::var("DESKTOP_SESSION").is_err();
@@ -92,15 +96,12 @@ fn main() {
     // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     // SOFTWARE.
-    let handle = thread::spawn(move || {
-        let krnl = Command::new("uname")
-            .arg("-r")
-            .output()
-            .expect("Could not find kernel version.");
-        let kernl = String::from_utf8(krnl.stdout).unwrap().replace("\n", "");
-        let kernel = kernl.clone();
-        tx.send(kernel).unwrap();
-    });
+    let krnl = Command::new("uname")
+        .arg("-r")
+        .output()
+        .expect("Could not find kernel version. Uname is a dependency of XEFETCH");
+    let kernl = String::from_utf8(krnl.stdout).unwrap().replace("\n", "");
+    let kernel = kernl.clone();
     let uptime = format_uptime();
     // Get arch
     let arch = Command::new("uname")
@@ -125,22 +126,54 @@ fn main() {
         .replace(" Processor", "")
         .to_string();
 
-    let kernel = rx.recv().unwrap();
     // Get packages
     let pkgs = get_pkgs();
-    output(
-        user.to_string(),
-        host,
-        model,
-        distro,
-        rch,
-        kernel.to_string(),
-        uptime,
-        shell,
-        de,
-        cpu,
-        pkgs
-    );
+    if &distro_art[..] != "" {
+        output(
+            user.to_string(),
+            host,
+            model,
+            distro,
+            distro_art,
+            rch,
+            kernel.to_string(),
+            uptime,
+            shell,
+            de,
+            cpu,
+            pkgs
+        );
+    }
+}
+
+fn parse_args(distro: &String) -> Result<String, ()> {
+    let args: Vec<String> = env::args().collect();
+    let mut l = false; // Use a different logo art.
+    let mut help = false; // Decide whether to print the help message or not.
+    let mut logo: String = distro.to_string();
+    for c in args {
+        if l == true {
+            l = false;
+            logo = c.clone();
+        }
+        if &c[..] == "-l" || &c[..] == "--logo" {
+            l = true;
+        }
+        if &c[..] == "-h" || &c[..] == "--help" {
+            help = true;
+            println!(
+                "Options:\n\
+                      -h or --help: Prints this message.\n\
+                      -l or --logo: Changes the logo art. Ex: xefetch -l void_linux\n"
+            );
+        }
+    }
+    if help {
+        Err(())
+    }
+    else {
+        Ok(logo)
+    }
 }
 
 fn get_distro() -> String {
@@ -163,7 +196,10 @@ fn get_distro() -> String {
     distro = v[1].to_ascii_uppercase();
     let vc: Vec<char> = distro.chars().collect();
     if vc[0] == '"' {
-        distro = distro[1 .. (distro.chars().count() - 1)].to_string();
+        distro = distro.replace("\"", "").to_string();
+    }
+    if &distro[..] == "VOID" || &distro[..] == "GENTOO" {
+        distro = format!("{} LINUX", distro);
     }
     distro
 }
@@ -359,8 +395,8 @@ fn get_pkgs() -> String {
 }
 
 fn output(
-    user: String, host: String, model: String, distro: String, arch: String, kernel: String,
-    uptime: String, shell: String, de: String, cpu: String, pkgs: String
+    user: String, host: String, model: String, distro: String, distro_art: String, arch: String,
+    kernel: String, uptime: String, shell: String, de: String, cpu: String, pkgs: String
 ) {
     // colors
     let black = color::Fg(color::Black);
@@ -382,7 +418,6 @@ fn output(
     let reset = color::Fg(color::Reset);
     let bold = style::Bold;
     let nbold = style::Reset;
-    let distro_s: &str = &distro[..];
 
     // Copyright (c) 2018, 2019, 2020 Joe Schillinger <me@schil.li>
     //
@@ -399,10 +434,10 @@ fn output(
     // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
     // println!("{}@{}\n\rOS:     {} {}\n\rHOST:   {}\n\rKERNEL: {}\n\rUPTIME: {}\n\rSHELL:  {}\n\rDE:     {}\n\rCPU:    {}\n\rPKGS:   {}\n\rXEFETCH 1.0\n\r{}██{}██{}██{}██{}██{}██{}██{}██\n{}██{}██{}██{}██{}██{}██{}██{}██{reset}",user,host,distro,arch,model,kernel,uptime,shell,de,cpu,pkgs,black,red,green,yellow,blue,magenta,cyan,white,lblack,lred,lgreen,lyellow,lblue,lmagenta,lcyan,lwhite,reset = color::Fg(color::Reset),);
-    match distro_s {
-        | "VOID" => {
+    match &distro_art[..] {
+        | "VOID LINUX" => {
             print!(
-                "{}{}   dMMMMMMb      {}{}{}@{}{}{}\n\r dMMV`  `*VMb    OS:{}{}     {} LINUX {}",
+                "{}{}   dMMMMMMb      {}{}{}@{}{}{}\n\r dMMV`  `*VMb    OS:{}{}     {} {}",
                 bold, lgreen, user, nbold, reset, bold, lgreen, host, reset, nbold, distro, arch
             );
             print!(
@@ -477,21 +512,21 @@ fn output(
             );
         },
 
-        | "GENTOO" => {
+        | "GENTOO LINUX" => {
             print!(
-                "{}{}  .----.         {}{}{}@{}{}{}\n\r.`   _  `.       OS:{}{}     {} LINUX {}",
+                "{}{}     .----.      {}{}{}@{}{}{}\n\r   .`   _  `.    OS:{}{}     {} {}",
                 bold, magenta, user, nbold, reset, bold, magenta, host, reset, nbold, distro, arch
             );
             print!(
-                "\n\r{}{}Vm, (_)`\"`.      HOST:{}{}   {}\n\r{}{} `V.   ` ,V      KERNEL:{}{} {}",
+                "\n\r{}{}   Vm, (_)`\"`.   HOST:{}{}   {}\n\r{}{}    `V.   ` ,V   KERNEL:{}{} {}",
                 bold, magenta, nbold, reset, model, bold, magenta, nbold, reset, kernel
             );
             print!(
-                "\n\r{}{} .`   `,/V`      UPTIME:{}{} {}\n\r{}{}/ ` ` AV`        SHELL:{}{}  {}",
+                "\n\r{}{}    .`   `,/V`   UPTIME:{}{} {}\n\r{}{}   / ` ` AV`     SHELL:{}{}  {}",
                 bold, magenta, nbold, reset, uptime, bold, magenta, nbold, reset, shell
             );
             print!(
-                "\n\r{}{}`<mmd*\"          DE:     {}{}{}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{}{} CPU:{}{}    {}",
+                "\n\r{}{}   `<mmd*\"       DE:     {}{}{}\n\r{}██{}██{}██{}██{}██{}██{}██{}██{}{} CPU:{}{}    {}",
                 bold, magenta, nbold, reset, de, black, red, green, yellow, blue, magenta, cyan, white, magenta, bold, nbold, reset, cpu,
             );
             print!(
